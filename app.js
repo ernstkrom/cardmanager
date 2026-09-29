@@ -1,6 +1,6 @@
-import "./vendor/beercss/beer.min.js";
-import "./vendor/material-dynamic-colors/material-dynamic-colors.min.js";
-import "./long-press-event.js";
+import "./assets/vendor/beercss/beer.min.js";
+import "./assets/vendor/material-dynamic-colors/material-dynamic-colors.min.js";
+import "./assets/vendor/long-press-event/long-press-event.js";
 import { processCardImage } from "./card-scan.js";
 
 if ("serviceWorker" in navigator) {
@@ -47,6 +47,17 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   importBtn.addEventListener("click", async (event) => {
     document.getElementById("file-input").click();
+  });
+
+  document.getElementById("file-input").addEventListener("change", async function () {
+    if (this.files && this.files[0]) {
+      await importFilesFromJson(this.files[0]);
+      this.value = "";
+    }
+  });
+
+  document.getElementById("licenses").addEventListener("click", () => {
+    document.getElementById("licenses-dialog").showModal();
   });
 
   inputElement.addEventListener("change", async function () {

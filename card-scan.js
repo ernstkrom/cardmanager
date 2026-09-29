@@ -3,7 +3,7 @@
 // and contrast-enhances the image around it before it's saved to OPFS.
 // If no code is found, the original image data URL is returned untouched.
 
-const ZXING_BROWSER_URL = "./vendor/zxing/browser.js";
+const ZXING_BROWSER_URL = "./assets/vendor/zxing/browser.js";
 
 export async function processCardImage(file) {
   const dataUrl = await readFileAsDataUrl(file);

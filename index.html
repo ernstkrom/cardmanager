@@ -31,9 +31,9 @@
         <i>home</i>
         <div>Home</div>
       </a>
-      <a data-ui="#profile">
-        <i>person</i>
-        <div>Profile</div>
+      <a data-ui="#settings">
+        <i>settings</i>
+        <div>Settings</div>
       </a>
     </nav>
 
@@ -43,32 +43,117 @@
         <div id="list"></div>
       </div>
 
-      <!-- Profile -->
-      <div id="profile" class="page padding">
-        <button class="responsive" id="reset">Reset</button>
-        <hr class="small" />
-        <button class="responsive" id="import">
-          <span>Import</span>
-          <input
-            onchange="importFilesFromJson(this.files[0]);"
-            id="file-input"
-            type="file"
-            accept="application/JSON"
-            style="display: none"
-          />
-        </button>
-        <hr class="small" />
-        <button class="responsive" id="export">Export</button>
-        <hr class="small" />
-        <details class="large">
-          <summary>Licenses</summary>
-          <a
-            class="link"
-            href="https://github.com/john-doherty/long-press-event?tab=MIT-1-ov-file#readme"
-            >john-doherty/long-press-event</a
-          >
-        </details>
+      <!-- Settings -->
+      <div id="settings" class="page padding left-align">
+        <h5>Settings</h5>
+
+        <h6 class="small primary-text">Backup</h6>
+        <article class="no-padding">
+          <a class="row wave padding" id="export">
+            <i>download</i>
+            <div class="max">
+              <div>Export cards</div>
+              <div class="small-text secondary-text">Save all cards to a backup file</div>
+            </div>
+          </a>
+          <div class="divider"></div>
+          <a class="row wave padding" id="import">
+            <i>upload</i>
+            <div class="max">
+              <div>Import cards</div>
+              <div class="small-text secondary-text">Add cards from a backup file</div>
+            </div>
+          </a>
+          <input id="file-input" type="file" accept="application/json,.json" hidden />
+        </article>
+
+        <h6 class="small primary-text">Data</h6>
+        <article class="no-padding">
+          <a class="row wave padding" id="reset">
+            <i class="error-text">delete_forever</i>
+            <div class="max">
+              <div class="error-text">Delete all cards</div>
+              <div class="small-text secondary-text">Permanently remove every card from this device</div>
+            </div>
+          </a>
+        </article>
+
+        <h6 class="small primary-text">About</h6>
+        <article class="no-padding">
+          <div class="row padding">
+            <img class="settings-logo" src="assets/logo/logo.svg?v=2" alt="" />
+            <div class="max">
+              <div>Card Manager</div>
+              <div class="small-text secondary-text">Your loyalty cards, always with you, even offline</div>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <a class="row wave padding" href="LICENSE" target="_blank">
+            <i>gavel</i>
+            <div class="max">
+              <div>License</div>
+              <div class="small-text secondary-text">MIT License</div>
+            </div>
+            <i>open_in_new</i>
+          </a>
+          <div class="divider"></div>
+          <a class="row wave padding" id="licenses">
+            <i>description</i>
+            <div class="max">
+              <div>Open source licenses</div>
+              <div class="small-text secondary-text">Third-party software used by this app</div>
+            </div>
+            <i>chevron_right</i>
+          </a>
+        </article>
       </div>
+
+      <!-- Third-party licenses -->
+      <dialog id="licenses-dialog">
+        <form method="dialog" class="left-align">
+          <h5>Open source licenses</h5>
+          <p>Card Manager is built with these open source projects:</p>
+          <ul>
+        <li>
+          <a class="link" href="https://github.com/beercss/beercss" target="_blank" rel="noopener">BeerCSS</a> 3.7.12
+          &middot; <a class="link" href="assets/vendor/beercss/LICENSE" target="_blank">MIT</a>
+        </li>
+        <li>
+          <a class="link" href="https://github.com/google/material-design-icons" target="_blank" rel="noopener">Material Symbols (icon font)</a>
+          &middot; <a class="link" href="assets/vendor/beercss/LICENSE-material-symbols" target="_blank">Apache-2.0</a>
+        </li>
+        <li>
+          <a class="link" href="https://github.com/leonardorafael/material-dynamic-colors" target="_blank" rel="noopener">material-dynamic-colors</a> 1.1.2
+          &middot; <a class="link" href="assets/vendor/material-dynamic-colors/LICENSE" target="_blank">MIT</a>
+        </li>
+        <li>
+          <a class="link" href="https://github.com/material-foundation/material-color-utilities" target="_blank" rel="noopener">Material Color Utilities</a>
+          &middot; <a class="link" href="assets/vendor/material-dynamic-colors/LICENSE-material-color-utilities" target="_blank">Apache-2.0</a>
+        </li>
+        <li>
+          <a class="link" href="https://github.com/zxing-js/browser" target="_blank" rel="noopener">@zxing/browser</a> 0.2.1
+          &middot; <a class="link" href="assets/vendor/zxing/LICENSE-zxing-browser" target="_blank">MIT</a>
+        </li>
+        <li>
+          <a class="link" href="https://github.com/zxing-js/library" target="_blank" rel="noopener">@zxing/library</a> 0.23.0
+          &middot; <a class="link" href="assets/vendor/zxing/LICENSE-zxing-library" target="_blank">Apache-2.0</a>
+        </li>
+        <li>
+          <a class="link" href="https://github.com/adriengibrat/ts-custom-error" target="_blank" rel="noopener">ts-custom-error</a> 3.3.1
+          &middot; <a class="link" href="assets/vendor/zxing/LICENSE-ts-custom-error" target="_blank">MIT</a>
+        </li>
+        <li>
+          <a class="link" href="https://github.com/john-doherty/long-press-event" target="_blank" rel="noopener">long-press-event</a>
+          &middot; <a class="link" href="assets/vendor/long-press-event/LICENSE" target="_blank">MIT</a>
+        </li>
+      
+          </ul>
+          <nav class="right-align no-space">
+            <button type="submit" class="transparent link">Close</button>
+          </nav>
+        </form>
+      </dialog>
+
       <button class="circle extra" id="fab-button">
         <i class="responsive extra">add_a_photo</i>
         <span>Photo</span>

@@ -1,5 +1,5 @@
 // Establish a cache name
-const cacheName = "0.0.12";
+const cacheName = "0.0.17";
 
 // Assets to precache, resolved relative to this script's own location so
 // this works both at a domain root and under a GitHub Pages project path
@@ -10,16 +10,25 @@ const precacheUrls = [
   "./design.css",
   "./app.js",
   "./card-scan.js",
-  "./long-press-event.js",
+  "./assets/vendor/long-press-event/long-press-event.js",
   "./worker.js",
-  "./vendor/beercss/beer.min.css",
-  "./vendor/beercss/beer.min.js",
-  "./vendor/beercss/material-symbols-outlined.woff2",
-  "./vendor/material-dynamic-colors/material-dynamic-colors.min.js",
-  "./vendor/zxing/browser.js",
-  "./vendor/zxing/library.js",
-  "./vendor/zxing/ts-custom-error.js",
+  "./assets/vendor/beercss/beer.min.css",
+  "./assets/vendor/beercss/beer.min.js",
+  "./assets/vendor/beercss/material-symbols-outlined.woff2",
+  "./assets/vendor/material-dynamic-colors/material-dynamic-colors.min.js",
+  "./assets/vendor/zxing/browser.js",
+  "./assets/vendor/zxing/library.js",
+  "./assets/vendor/zxing/ts-custom-error.js",
   "./manifest.json",
+  "./LICENSE",
+  "./assets/vendor/beercss/LICENSE",
+  "./assets/vendor/beercss/LICENSE-material-symbols",
+  "./assets/vendor/material-dynamic-colors/LICENSE",
+  "./assets/vendor/material-dynamic-colors/LICENSE-material-color-utilities",
+  "./assets/vendor/zxing/LICENSE-zxing-browser",
+  "./assets/vendor/zxing/LICENSE-zxing-library",
+  "./assets/vendor/zxing/LICENSE-ts-custom-error",
+  "./assets/vendor/long-press-event/LICENSE",
   "./assets/logo/logo.svg?v=2",
   "./assets/logo/favicon.png?v=2",
   "./assets/logo/apple-touch-icon.png?v=2",

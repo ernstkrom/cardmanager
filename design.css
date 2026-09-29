@@ -1,4 +1,4 @@
-@import "./vendor/beercss/beer.min.css";
+@import "./assets/vendor/beercss/beer.min.css";
 
 *:not(input):not(select):not(code):not(textarea):not([contenteditable]) {
   -webkit-touch-callout: none;
@@ -59,4 +59,32 @@
   pointer-events: none;
   -webkit-user-drag: none;
   -webkit-touch-callout: none;
+}
+
+/* The add-card button only makes sense on the home tab */
+main:has(#settings.active) #fab-button {
+  display: none;
+}
+
+/* Settings */
+#settings {
+  max-width: 40rem;
+  margin: 0 auto;
+}
+
+#settings h6 {
+  margin: 1.5rem 0 0.5rem 1rem;
+}
+
+#settings article {
+  margin-top: 0;
+}
+
+#settings a.row {
+  cursor: pointer;
+}
+
+.settings-logo {
+  width: 1.5rem;
+  height: 1.5rem;
 }
