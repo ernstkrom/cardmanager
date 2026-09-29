@@ -1,33 +1,43 @@
 // Establish a cache name
 const cacheName = "0.0.1";
 
-// Assets to precache
-const precachedAssets = [
-  "/",
-  "/index.html",
-  "/design.css",
-  "/app.js",
-  "/long-press-event.js",
-  "/toastify.css",
-  "/toastify.js",
-  "/assets/logo/logo.svg",
-  "/assets/screenshots/desktop.png",
-  "/assets/screenshots/mobile.png",
-];
+// Assets to precache, resolved relative to this script's own location so
+// this works both at a domain root and under a GitHub Pages project path
+// (e.g. https://user.github.io/repo-name/).
+const precacheUrls = [
+  "./",
+  "./index.html",
+  "./design.css",
+  "./app.js",
+  "./long-press-event.js",
+  "./assets/logo/logo.svg",
+  "./assets/screenshots/desktop.png",
+  "./assets/screenshots/mobile.png",
+].map((path) => new URL(path, self.location).href);
 
 self.addEventListener("install", (event) => {
   // Precache assets on install
   event.waitUntil(
     caches.open(cacheName).then((cache) => {
-      return cache.addAll(precachedAssets);
+      return cache.addAll(precacheUrls);
     })
+  );
+});
+
+self.addEventListener("activate", (event) => {
+  // Drop caches from older versions of this service worker
+  event.waitUntil(
+    caches.keys().then((keys) =>
+      Promise.all(
+        keys.filter((key) => key !== cacheName).map((key) => caches.delete(key))
+      )
+    )
   );
 });
 
 self.addEventListener("fetch", (event) => {
   // Is this one of our precached assets?
-  const url = new URL(event.request.url);
-  const isPrecachedRequest = precachedAssets.includes(url.pathname);
+  const isPrecachedRequest = precacheUrls.includes(event.request.url);
 
   if (isPrecachedRequest) {
     // Grab the precached asset from the cache

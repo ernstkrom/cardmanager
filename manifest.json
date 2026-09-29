@@ -5,17 +5,18 @@
   "background_color": "#fff",
   "display": "standalone",
   "orientation": "portrait",
-  "start_url": "/",
+  "start_url": ".",
+  "scope": ".",
   "description": "App description",
   "screenshots": [
     {
-      "src": "/assets/screenshots/desktop.png",
+      "src": "assets/screenshots/desktop.png",
       "sizes": "1920x1080",
       "type": "image/png",
       "form_factor": "wide"
     },
     {
-      "src": "/assets/screenshots/mobile.png",
+      "src": "assets/screenshots/mobile.png",
       "sizes": "1080x1920",
       "type": "image/png",
       "form_factor": "narrow"
@@ -23,7 +24,7 @@
   ],
   "icons": [
     {
-      "src": "/assets/logo/logo.svg",
+      "src": "assets/logo/logo.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
