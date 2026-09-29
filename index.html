@@ -71,9 +71,21 @@
         <img id="viewer-image" alt="" />
       </dialog>
 
+      <!-- Confirmation for destructive actions -->
+      <dialog id="confirm-dialog">
+        <form method="dialog" class="left-align">
+          <h5 id="confirm-title"></h5>
+          <p id="confirm-message"></p>
+          <nav class="right-align no-space">
+            <button type="submit" value="cancel" class="transparent link">Cancel</button>
+            <button type="submit" value="confirm" class="error" id="confirm-action"></button>
+          </nav>
+        </form>
+      </dialog>
+
       <!-- New card details, shown after picking a photo -->
       <dialog id="card-dialog">
-        <form method="dialog">
+        <form method="dialog" class="left-align">
           <h5>New card</h5>
           <div class="field label border">
             <input type="text" name="title" id="card-title" />

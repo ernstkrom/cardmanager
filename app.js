@@ -27,7 +27,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   const importBtn = document.getElementById("import");
 
   resetBtn.addEventListener("click", async (event) => {
-    if (confirm("🗑️💯🤔\nDelete all data?") == true) {
+    const confirmed = await confirmAction(
+      "Delete all cards?",
+      "All saved cards will be permanently removed from this device. This cannot be undone.",
+      "Delete all"
+    );
+    if (confirmed) {
       let root = await navigator.storage.getDirectory();
       for await (const key of root.keys()) {
         await root.removeEntry(key);
@@ -83,6 +88,22 @@ function askCardDetails() {
     dialog.returnValue = "";
     dialog.showModal();
     titleInput.focus();
+  });
+}
+
+// Asks to confirm a destructive action; resolves to true if confirmed.
+function confirmAction(title, message, actionLabel) {
+  const dialog = document.getElementById("confirm-dialog");
+  document.getElementById("confirm-title").textContent = title;
+  document.getElementById("confirm-message").textContent = message;
+  document.getElementById("confirm-action").textContent = actionLabel;
+
+  return new Promise((resolve) => {
+    dialog.addEventListener("close", () => resolve(dialog.returnValue === "confirm"), {
+      once: true,
+    });
+    dialog.returnValue = "";
+    dialog.showModal();
   });
 }
 
@@ -183,7 +204,14 @@ async function loadImages() {
     card.addEventListener("long-press", async (event) => {
       // Stop the long press from also triggering the click that opens the viewer
       event.preventDefault();
-      if (confirm("👉🗑️🤔\nDelete this item?") == true) {
+      const confirmed = await confirmAction(
+        "Delete card?",
+        title
+          ? `"${title}" will be permanently removed. This cannot be undone.`
+          : "This card will be permanently removed. This cannot be undone.",
+        "Delete"
+      );
+      if (confirmed) {
         let root = await navigator.storage.getDirectory();
         await root.removeEntry(file);
         loadImages();
