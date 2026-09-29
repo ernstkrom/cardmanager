@@ -65,6 +65,25 @@
         <span>Photo</span>
         <input type="file" accept="image/*" id="upload" />
       </button>
+
+      <!-- New card details, shown after picking a photo -->
+      <dialog id="card-dialog">
+        <form method="dialog">
+          <h5>New card</h5>
+          <div class="field label border">
+            <input type="text" name="title" id="card-title" />
+            <label>Title</label>
+          </div>
+          <div class="field label border">
+            <input type="color" name="color" id="card-color" value="#ffffff" />
+            <label>Card color</label>
+          </div>
+          <nav class="right-align no-space">
+            <button type="submit" value="cancel" class="transparent link">Cancel</button>
+            <button type="submit" value="save">Save</button>
+          </nav>
+        </form>
+      </dialog>
     </main>
   </body>
 </html>

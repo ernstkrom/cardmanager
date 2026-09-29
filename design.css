@@ -17,3 +17,19 @@
   margin-bottom: 5.5rem;
   z-index: 1000;
 }
+
+.card {
+  padding: 1.5rem;
+}
+
+/* Keep the image well inside the card, with generous side margins */
+.card-image {
+  display: block;
+  width: 70%;
+  max-width: 24rem;
+  margin: 0 auto;
+}
+
+.card-title {
+  margin: 1rem 0 0;
+}

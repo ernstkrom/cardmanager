@@ -49,8 +49,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       const file = this.files[0];
       const timestamp = Date.now();
       const base64String = await processCardImage(file);
-      const title = prompt("Card title:", "") ?? "";
-      const card = JSON.stringify({ title: title.trim(), image: base64String });
+      this.value = "";
+
+      const details = await askCardDetails();
+      if (!details) return;
+      const card = JSON.stringify({ ...details, image: base64String });
 
       new Worker("worker.js").postMessage([card, timestamp]);
       await new Promise((res) => setTimeout(res, 1000));
@@ -59,6 +62,35 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 });
+
+// Shows the new card dialog; resolves to { title, color }, or null if cancelled.
+function askCardDetails() {
+  const dialog = document.getElementById("card-dialog");
+  const titleInput = document.getElementById("card-title");
+  const colorInput = document.getElementById("card-color");
+  titleInput.value = "";
+  colorInput.value = "#ffffff";
+
+  return new Promise((resolve) => {
+    dialog.addEventListener(
+      "close",
+      () => {
+        if (dialog.returnValue !== "save") return resolve(null);
+        resolve({ title: titleInput.value.trim(), color: colorInput.value });
+      },
+      { once: true }
+    );
+    dialog.returnValue = "";
+    dialog.showModal();
+    titleInput.focus();
+  });
+}
+
+// Black or white, whichever reads better on the given #rrggbb background.
+function textColorFor(hex) {
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+  return 0.299 * r + 0.587 * g + 0.114 * b > 150 ? "#000000" : "#ffffff";
+}
 
 async function readFile(timestamp) {
   const root = await navigator.storage.getDirectory();
@@ -77,7 +109,7 @@ async function getFileNames() {
   return keys;
 }
 
-// Cards are stored as JSON { title, image }; older entries are a bare image data URL.
+// Cards are stored as JSON { title, color, image }; older entries are a bare image data URL.
 function parseCard(content) {
   if (content.startsWith("data:")) return { title: "", image: content };
   return JSON.parse(content);
@@ -90,19 +122,23 @@ async function loadImages() {
   const files = (await getFileNames()).sort();
 
   for (const file of files) {
-    const { title, image } = parseCard(await (await readFile(file)).text());
+    const { title, color, image } = parseCard(await (await readFile(file)).text());
 
     let card = document.createElement("article");
-    card.classList.add("no-padding");
+    card.classList.add("card");
+    if (color) {
+      card.style.backgroundColor = color;
+      card.style.color = textColorFor(color);
+    }
 
     let img = document.createElement("img");
     img.src = image;
-    img.classList.add("responsive");
+    img.classList.add("card-image");
     card.appendChild(img);
 
     if (title) {
       let heading = document.createElement("h6");
-      heading.classList.add("padding");
+      heading.classList.add("card-title");
       heading.textContent = title;
       card.appendChild(heading);
     }
