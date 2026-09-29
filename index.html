@@ -164,6 +164,41 @@
         <img id="viewer-image" alt="" draggable="false" />
       </dialog>
 
+      <!-- Crop / rotate the card image before saving -->
+      <dialog id="editor" class="max no-padding">
+        <div class="editor-layout left-align">
+          <h5 class="padding">Adjust image</h5>
+          <div class="editor-stage">
+            <canvas id="editor-canvas"></canvas>
+          </div>
+          <div class="editor-controls">
+            <div class="editor-rotate">
+              <button class="circle transparent" id="editor-rotate-left" aria-label="Rotate left">
+                <i>rotate_left</i>
+              </button>
+              <input type="range" id="editor-angle" min="-45" max="45" step="0.5" value="0" aria-label="Straighten" />
+              <button class="circle transparent" id="editor-rotate-right" aria-label="Rotate right">
+                <i>rotate_right</i>
+              </button>
+            </div>
+            <nav class="no-margin">
+              <button class="border" id="editor-source">
+                <i>photo</i>
+                <span>Use original photo</span>
+              </button>
+              <button class="transparent" id="editor-reset">
+                <i>restart_alt</i>
+                <span>Reset</span>
+              </button>
+            </nav>
+            <nav class="right-align no-margin">
+              <button class="transparent link" id="editor-skip">Skip</button>
+              <button id="editor-done">Done</button>
+            </nav>
+          </div>
+        </div>
+      </dialog>
+
       <!-- Confirmation for destructive actions -->
       <dialog id="confirm-dialog">
         <form method="dialog" class="left-align">

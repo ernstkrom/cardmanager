@@ -2,6 +2,7 @@ import "./assets/vendor/beercss/beer.min.js";
 import "./assets/vendor/material-dynamic-colors/material-dynamic-colors.min.js";
 import "./assets/vendor/long-press-event/long-press-event.js";
 import { processCardImage } from "./card-scan.js";
+import { editImage } from "./image-editor.js";
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
@@ -70,7 +71,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       const details = await askCardDetails();
       if (!details) return;
-      const base64String = await processing;
+      const base64String = await editImage(await processing, file);
       const card = JSON.stringify({ ...details, image: base64String });
 
       new Worker("worker.js").postMessage([card, timestamp]);
