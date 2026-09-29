@@ -20,7 +20,7 @@ if ("serviceWorker" in navigator) {
 document.addEventListener("DOMContentLoaded", async () => {
   await ui("theme", "#2fff00");
 
-  loadImages();
+  hideSplashWhenReady(loadImages());
 
   const inputElement = document.getElementById("upload");
   const resetBtn = document.getElementById("reset");
@@ -181,6 +181,26 @@ async function showViewer(image) {
 function textColorFor(hex) {
   const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
   return 0.299 * r + 0.587 * g + 0.114 * b > 150 ? "#000000" : "#ffffff";
+}
+
+// Fades out the loading screen once the styles, icon font and cards are
+// ready - or after a few seconds at most, so a slow part never blocks the app.
+function hideSplashWhenReady(cardsLoaded) {
+  const splash = document.getElementById("splash");
+  if (!splash) return;
+
+  const cssLoaded = new Promise((resolve) => {
+    if (window.cssLoaded) resolve();
+    else window.addEventListener("css-loaded", resolve, { once: true });
+  });
+  const timeout = new Promise((resolve) => setTimeout(resolve, 4000));
+
+  Promise.race([Promise.all([cssLoaded, cardsLoaded, document.fonts.ready]), timeout])
+    .catch(() => {})
+    .finally(() => {
+      splash.classList.add("hidden");
+      setTimeout(() => splash.remove(), 400);
+    });
 }
 
 async function readFile(timestamp) {
