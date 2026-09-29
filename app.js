@@ -86,6 +86,42 @@ function askCardDetails() {
   });
 }
 
+// Shows the image alone on a full screen white background (the brightest the
+// page can get; browsers don't allow changing the display brightness itself)
+// and keeps the screen from dimming while it's open. Tap anywhere to close.
+async function showViewer(image) {
+  const dialog = document.getElementById("viewer");
+  document.getElementById("viewer-image").src = image;
+
+  let wakeLock = null;
+  dialog.addEventListener("click", () => dialog.close(), { once: true });
+  dialog.addEventListener(
+    "close",
+    () => {
+      wakeLock?.release();
+      wakeLock = null;
+      if (document.fullscreenElement) document.exitFullscreen();
+    },
+    { once: true }
+  );
+  dialog.showModal();
+
+  try {
+    await document.documentElement.requestFullscreen?.();
+    if (!dialog.open && document.fullscreenElement) document.exitFullscreen();
+  } catch {
+    // Not supported or not allowed; the viewer still works without it.
+  }
+  try {
+    const lock = await navigator.wakeLock?.request("screen");
+    // The viewer may have been closed while the lock was being requested
+    if (dialog.open) wakeLock = lock;
+    else lock?.release();
+  } catch {
+    // Same as above.
+  }
+}
+
 // Black or white, whichever reads better on the given #rrggbb background.
 function textColorFor(hex) {
   const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
@@ -143,7 +179,10 @@ async function loadImages() {
       card.appendChild(heading);
     }
 
-    card.addEventListener("long-press", async () => {
+    card.addEventListener("click", () => showViewer(image));
+    card.addEventListener("long-press", async (event) => {
+      // Stop the long press from also triggering the click that opens the viewer
+      event.preventDefault();
       if (confirm("👉🗑️🤔\nDelete this item?") == true) {
         let root = await navigator.storage.getDirectory();
         await root.removeEntry(file);
