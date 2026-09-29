@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0,minimal-ui"
+    />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="assets/logo/logo.png" />
+    <link rel="apple-touch-icon" href="assets/logo/logo.png" />
+    <link rel="apple-touch-startup-image" href="assets/logo/logo.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="stylesheet" href="design.css" />
+    <script type="module" src="app.js"></script>
+    <title>Card Manager</title>
+  </head>
+  <body>
+    <nav class="bottom">
+      <a data-ui="#home" class="active">
+        <i>home</i>
+        <div>Home</div>
+      </a>
+      <a data-ui="#profile">
+        <i>person</i>
+        <div>Profile</div>
+      </a>
+    </nav>
+
+    <main class="responsive center-align">
+      <!-- Home -->
+      <div id="home" class="active page padding">
+        <div id="list"></div>
+      </div>
+
+      <!-- Profile -->
+      <div id="profile" class="page padding">
+        <button class="responsive" id="reset">Reset</button>
+        <hr class="small" />
+        <button class="responsive" id="import">
+          <span>Import</span>
+          <input
+            onchange="importFilesFromJson(this.files[0]);"
+            id="file-input"
+            type="file"
+            accept="application/JSON"
+            style="display: none"
+          />
+        </button>
+        <hr class="small" />
+        <button class="responsive" id="export">Export</button>
+        <hr class="small" />
+        <details class="large">
+          <summary>Licenses</summary>
+          <a
+            class="link"
+            href="https://github.com/john-doherty/long-press-event?tab=MIT-1-ov-file#readme"
+            >john-doherty/long-press-event</a
+          >
+        </details>
+      </div>
+      <button class="circle extra" id="fab-button">
+        <i class="responsive extra">add_a_photo</i>
+        <span>Photo</span>
+        <input type="file" accept="image/*" id="upload" />
+      </button>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,19 @@
+@import "https://cdn.jsdelivr.net/npm/beercss@3.7.12/dist/cdn/beer.min.css";
+
+*:not(input):not(select):not(code):not(textarea):not([contenteditable]) {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+#fab-button {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  margin: 1rem;
+  margin-bottom: 5.5rem;
+  z-index: 1000;
+}
