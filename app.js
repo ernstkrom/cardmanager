@@ -212,6 +212,7 @@ async function loadImages() {
     let img = document.createElement("img");
     img.src = image;
     img.classList.add("card-image");
+    img.draggable = false;
     card.appendChild(img);
 
     if (title) {

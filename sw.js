@@ -1,5 +1,5 @@
 // Establish a cache name
-const cacheName = "0.0.11";
+const cacheName = "0.0.12";
 
 // Assets to precache, resolved relative to this script's own location so
 // this works both at a domain root and under a GitHub Pages project path
