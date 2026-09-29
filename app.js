@@ -91,6 +91,27 @@ function askCardDetails() {
   });
 }
 
+// Swallows the click (if any) produced by lifting the finger after a long press,
+// so it neither opens the viewer nor hits a button in the dialog that just
+// opened underneath it. Deliberately not done via the long-press event's
+// preventDefault(): that arms a "cancel the next click" listener which iOS
+// never uses up (it fires no click after a long press), so it would eat the
+// first real tap on the dialog instead.
+function suppressReleaseClick() {
+  const swallow = (event) => {
+    event.stopPropagation();
+    event.preventDefault();
+  };
+  const releaseEvents = ["pointerup", "pointercancel", "touchend", "touchcancel", "mouseup"];
+  const onRelease = () => {
+    releaseEvents.forEach((type) => document.removeEventListener(type, onRelease, true));
+    setTimeout(() => document.removeEventListener("click", swallow, true), 350);
+  };
+
+  document.addEventListener("click", swallow, true);
+  releaseEvents.forEach((type) => document.addEventListener(type, onRelease, true));
+}
+
 // Asks to confirm a destructive action; resolves to true if confirmed.
 function confirmAction(title, message, actionLabel) {
   const dialog = document.getElementById("confirm-dialog");
@@ -201,9 +222,8 @@ async function loadImages() {
     }
 
     card.addEventListener("click", () => showViewer(image));
-    card.addEventListener("long-press", async (event) => {
-      // Stop the long press from also triggering the click that opens the viewer
-      event.preventDefault();
+    card.addEventListener("long-press", async () => {
+      suppressReleaseClick();
       const confirmed = await confirmAction(
         "Delete card?",
         title
