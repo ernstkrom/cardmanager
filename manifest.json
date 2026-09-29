@@ -1,33 +1,49 @@
 {
+  "id": "./",
   "name": "Card Manager",
-  "short_name": "Card Manager",
-  "theme_color": "#fff",
-  "background_color": "#fff",
+  "short_name": "Cards",
+  "description": "Keep all your loyalty, membership and gift cards in one place. Snap a photo of a card's barcode or QR code and show it at the checkout, even offline.",
+  "lang": "en",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "orientation": "portrait",
-  "start_url": ".",
-  "scope": ".",
-  "description": "App description",
-  "screenshots": [
-    {
-      "src": "assets/screenshots/desktop.png",
-      "sizes": "1920x1080",
-      "type": "image/png",
-      "form_factor": "wide"
-    },
-    {
-      "src": "assets/screenshots/mobile.png",
-      "sizes": "1080x1920",
-      "type": "image/png",
-      "form_factor": "narrow"
-    }
-  ],
+  "theme_color": "#178a3a",
+  "background_color": "#ffffff",
+  "categories": ["shopping", "lifestyle", "utilities"],
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "assets/logo/logo.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
+    },
+    {
+      "src": "assets/logo/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/logo/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/logo/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "assets/logo/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

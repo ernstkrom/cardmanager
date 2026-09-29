@@ -1,5 +1,5 @@
 // Establish a cache name
-const cacheName = "0.0.7";
+const cacheName = "0.0.8";
 
 // Assets to precache, resolved relative to this script's own location so
 // this works both at a domain root and under a GitHub Pages project path
@@ -11,9 +11,15 @@ const precacheUrls = [
   "./app.js",
   "./card-scan.js",
   "./long-press-event.js",
+  "./worker.js",
+  "./manifest.json",
   "./assets/logo/logo.svg",
-  "./assets/screenshots/desktop.png",
-  "./assets/screenshots/mobile.png",
+  "./assets/logo/favicon.png",
+  "./assets/logo/apple-touch-icon.png",
+  "./assets/logo/icon-192.png",
+  "./assets/logo/icon-512.png",
+  "./assets/logo/icon-maskable-192.png",
+  "./assets/logo/icon-maskable-512.png",
 ].map((path) => new URL(path, self.location).href);
 
 self.addEventListener("install", (event) => {
