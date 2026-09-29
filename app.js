@@ -64,11 +64,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (this.files && this.files[0]) {
       const file = this.files[0];
       const timestamp = Date.now();
-      const base64String = await processCardImage(file);
+      // Find and crop the code while the user fills in the card details
+      const processing = processCardImage(file);
       this.value = "";
 
       const details = await askCardDetails();
       if (!details) return;
+      const base64String = await processing;
       const card = JSON.stringify({ ...details, image: base64String });
 
       new Worker("worker.js").postMessage([card, timestamp]);
