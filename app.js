@@ -20,6 +20,8 @@ if ("serviceWorker" in navigator) {
 document.addEventListener("DOMContentLoaded", async () => {
   await ui("theme", "#2fff00");
 
+  enforcePortraitOnPhones();
+
   hideSplashWhenReady(loadImages());
 
   const inputElement = document.getElementById("upload");
@@ -181,6 +183,32 @@ async function showViewer(image) {
 function textColorFor(hex) {
   const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
   return 0.299 * r + 0.587 * g + 0.114 * b > 150 ? "#000000" : "#ffffff";
+}
+
+// Phones get portrait mode only. Installed on Android the manifest already
+// locks it, but iOS ignores that and browsers don't let pages lock rotation,
+// so while a phone is held in landscape a notice covers the app. It's a
+// modal dialog so it also covers other open dialogs (viewer, editor).
+// Orientation comes from the screen rather than the viewport: on Android the
+// on-screen keyboard shrinks the viewport, which would look like landscape.
+function enforcePortraitOnPhones() {
+  const notice = document.getElementById("rotate-notice");
+
+  const update = () => {
+    const phone =
+      window.matchMedia("(pointer: coarse)").matches && Math.min(screen.width, screen.height) < 600;
+    const type =
+      screen.orientation?.type ?? (Math.abs(window.orientation) === 90 ? "landscape" : "portrait");
+    const landscape = phone && type.startsWith("landscape");
+
+    if (landscape && !notice.open) notice.showModal();
+    else if (!landscape && notice.open) notice.close();
+  };
+
+  notice.addEventListener("cancel", (event) => event.preventDefault()); // Escape can't dismiss it
+  screen.orientation?.addEventListener("change", update);
+  window.addEventListener("orientationchange", update);
+  update();
 }
 
 // Fades out the loading screen once the styles, icon font and cards are

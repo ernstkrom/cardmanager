@@ -132,3 +132,12 @@ main:has(#settings.active) #fab-button {
   height: 100%;
   touch-action: none;
 }
+
+/* Landscape notice on phones */
+#rotate-notice[open] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
