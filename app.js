@@ -1,6 +1,7 @@
 import "https://cdn.jsdelivr.net/npm/beercss@3.7.12/dist/cdn/beer.min.js";
 import "https://cdn.jsdelivr.net/npm/material-dynamic-colors@1.1.2/dist/cdn/material-dynamic-colors.min.js";
 import "./long-press-event.js";
+import { processCardImage } from "./card-scan.js";
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
@@ -40,7 +41,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (this.files && this.files[0]) {
       const file = this.files[0];
       const timestamp = Date.now();
-      const base64String = await convertToBase64(file);
+      const base64String = await processCardImage(file);
 
       new Worker("worker.js").postMessage([base64String, timestamp]);
       await new Promise((res) => setTimeout(res, 1000));
@@ -54,15 +55,6 @@ async function readFile(timestamp) {
   const root = await navigator.storage.getDirectory();
   const existingFileHandle = await root.getFileHandle(timestamp);
   return await existingFileHandle.getFile();
-}
-
-async function convertToBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = (error) => reject(error);
-  });
 }
 
 async function getFileNames() {
