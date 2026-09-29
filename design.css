@@ -1,4 +1,4 @@
-@import "https://cdn.jsdelivr.net/npm/beercss@3.7.12/dist/cdn/beer.min.css";
+@import "./vendor/beercss/beer.min.css";
 
 *:not(input):not(select):not(code):not(textarea):not([contenteditable]) {
   -webkit-touch-callout: none;

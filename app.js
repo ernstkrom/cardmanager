@@ -1,5 +1,5 @@
-import "https://cdn.jsdelivr.net/npm/beercss@3.7.12/dist/cdn/beer.min.js";
-import "https://cdn.jsdelivr.net/npm/material-dynamic-colors@1.1.2/dist/cdn/material-dynamic-colors.min.js";
+import "./vendor/beercss/beer.min.js";
+import "./vendor/material-dynamic-colors/material-dynamic-colors.min.js";
 import "./long-press-event.js";
 import { processCardImage } from "./card-scan.js";
 
