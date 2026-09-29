@@ -1,5 +1,5 @@
 // Establish a cache name
-const cacheName = "0.0.2";
+const cacheName = "0.0.4";
 
 // Assets to precache, resolved relative to this script's own location so
 // this works both at a domain root and under a GitHub Pages project path
@@ -17,6 +17,10 @@ const precacheUrls = [
 ].map((path) => new URL(path, self.location).href);
 
 self.addEventListener("install", (event) => {
+  // Activate a new version right away instead of waiting for every tab to
+  // close, otherwise the old cached app.js keeps being served after updates
+  self.skipWaiting();
+
   // Precache assets on install
   event.waitUntil(
     caches.open(cacheName).then((cache) => {
@@ -32,7 +36,7 @@ self.addEventListener("activate", (event) => {
       Promise.all(
         keys.filter((key) => key !== cacheName).map((key) => caches.delete(key))
       )
-    )
+    ).then(() => self.clients.claim())
   );
 });
 

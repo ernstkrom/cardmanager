@@ -7,6 +7,13 @@ if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("./sw.js");
   });
+
+  // Reload once a new service worker takes over so its fresh assets are used
+  if (navigator.serviceWorker.controller) {
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      window.location.reload();
+    });
+  }
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -42,8 +49,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       const file = this.files[0];
       const timestamp = Date.now();
       const base64String = await processCardImage(file);
+      const title = prompt("Card title:", "") ?? "";
+      const card = JSON.stringify({ title: title.trim(), image: base64String });
 
-      new Worker("worker.js").postMessage([base64String, timestamp]);
+      new Worker("worker.js").postMessage([card, timestamp]);
       await new Promise((res) => setTimeout(res, 1000));
 
       loadImages();
@@ -68,33 +77,45 @@ async function getFileNames() {
   return keys;
 }
 
+// Cards are stored as JSON { title, image }; older entries are a bare image data URL.
+function parseCard(content) {
+  if (content.startsWith("data:")) return { title: "", image: content };
+  return JSON.parse(content);
+}
+
 async function loadImages() {
   document.getElementById("list").replaceChildren();
 
   const list = document.getElementById("list");
-  const files = await getFileNames();
+  const files = (await getFileNames()).sort();
 
-  files.forEach(async (file) => {
+  for (const file of files) {
+    const { title, image } = parseCard(await (await readFile(file)).text());
+
+    let card = document.createElement("article");
+    card.classList.add("no-padding");
+
     let img = document.createElement("img");
-    let url = await readFile(file);
+    img.src = image;
+    img.classList.add("responsive");
+    card.appendChild(img);
 
-    img.src = await url.text();
-    img.style.display = "block";
-    img.style.width = "100%";
-    img.addEventListener("long-press", async () => {
+    if (title) {
+      let heading = document.createElement("h6");
+      heading.classList.add("padding");
+      heading.textContent = title;
+      card.appendChild(heading);
+    }
+
+    card.addEventListener("long-press", async () => {
       if (confirm("👉🗑️🤔\nDelete this item?") == true) {
         let root = await navigator.storage.getDirectory();
         await root.removeEntry(file);
         loadImages();
       }
     });
-    list.appendChild(img);
-
-    // add a divider
-    let hr = document.createElement("hr");
-    hr.classList.add("small");
-    list.appendChild(hr);
-  });
+    list.appendChild(card);
+  }
 }
 
 async function exportFilesAsJson() {
