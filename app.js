@@ -34,9 +34,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       "Delete all"
     );
     if (confirmed) {
-      let root = await navigator.storage.getDirectory();
-      for await (const key of root.keys()) {
-        await root.removeEntry(key);
+      // Collect the names first: deleting while iterating can skip entries
+      const root = await navigator.storage.getDirectory();
+      for (const name of await getFileNames()) {
+        await root.removeEntry(name);
       }
       document.getElementById("list").replaceChildren();
     }
@@ -74,9 +75,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const base64String = await editImage(await processing, file);
       const card = JSON.stringify({ ...details, image: base64String });
 
-      new Worker("worker.js").postMessage([card, timestamp]);
-      await new Promise((res) => setTimeout(res, 1000));
-
+      await writeCardFile(timestamp, card);
       loadImages();
     }
   });
@@ -256,41 +255,165 @@ async function loadImages() {
   }
 }
 
+// Saves one card file via the worker; resolves once it's really written.
+function writeCardFile(name, content) {
+  return new Promise((resolve, reject) => {
+    const worker = new Worker("worker.js");
+    worker.onmessage = (event) => {
+      worker.terminate();
+      if (event.data?.error) reject(new Error(event.data.error));
+      else resolve();
+    };
+    worker.onerror = (event) => {
+      worker.terminate();
+      reject(new Error(event.message));
+    };
+    worker.postMessage([content, String(name)]);
+  });
+}
+
+function showMessage(text) {
+  document.getElementById("snackbar-text").textContent = text;
+  ui("#snackbar", 4000);
+}
+
+// Backup file format (version 2). Cards keep their ids (creation
+// timestamps), so the order survives a restore and importing the same
+// backup twice doesn't duplicate cards. Version 1 backups were a plain JSON
+// array of the raw card file contents and can still be imported.
+const BACKUP_FORMAT = "card-manager-backup";
+
 async function exportFilesAsJson() {
-  const root = await navigator.storage.getDirectory();
-  const files = await getFileNames();
-
-  const fileData = [];
-
-  for (const file of files) {
-    const fileHandle = await root.getFileHandle(file);
-    const fileObject = await fileHandle.getFile();
-
-    const fileContent = await fileObject.text();
-
-    fileData.push(fileContent);
+  const names = (await getFileNames()).sort();
+  if (names.length === 0) {
+    showMessage("There are no cards to export yet");
+    return;
   }
 
-  const jsonData = JSON.stringify(fileData);
-  const blob = new Blob([jsonData], {type: "application/json"});
+  const cards = [];
+  for (const name of names) {
+    cards.push({ id: name, ...parseCard(await (await readFile(name)).text()) });
+  }
+  const backup = { format: BACKUP_FORMAT, version: 2, exportedAt: new Date().toISOString(), cards };
 
-  const url = URL.createObjectURL(blob);
+  const date = new Date().toISOString().slice(0, 10);
+  const file = new File([JSON.stringify(backup)], `card-manager-backup-${date}.json`, {
+    type: "application/json",
+  });
+
+  // On phones, offer the share sheet ("Save to Files", AirDrop, mail, ...):
+  // plain downloads are unreliable there, especially in an installed app.
+  const touch = window.matchMedia("(pointer: coarse)").matches;
+  if (touch && navigator.canShare?.({ files: [file] })) {
+    try {
+      await navigator.share({ files: [file], title: "Card Manager backup" });
+      return;
+    } catch (err) {
+      if (err.name === "AbortError") return; // user closed the share sheet
+      // Otherwise fall back to a normal download below
+    }
+  }
+
+  const url = URL.createObjectURL(file);
   const a = document.createElement("a");
   a.href = url;
-  a.download = "opfs_files.json";
+  a.download = file.name;
+  document.body.appendChild(a);
   a.click();
+  a.remove();
+  // Revoking right away can cancel the download in some browsers
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  showMessage(`Exported ${cards.length} ${cards.length === 1 ? "card" : "cards"}`);
+}
 
-  URL.revokeObjectURL(url);
+// A valid card is { title?, color?, image } with an image data URL
+function isValidCard(card) {
+  return (
+    card &&
+    typeof card.image === "string" &&
+    card.image.startsWith("data:image/") &&
+    (card.title === undefined || typeof card.title === "string") &&
+    (card.color === undefined || /^#[0-9a-f]{6}$/i.test(card.color))
+  );
+}
+
+// Reads a backup file into [{ id?, card }], or throws if it isn't one
+function readBackup(text) {
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    throw new Error("This file isn't a Card Manager backup");
+  }
+
+  let entries;
+  if (Array.isArray(data)) {
+    // Version 1: raw card file contents (card JSON or a bare image data URL)
+    entries = data.map((content) => {
+      try {
+        return { card: typeof content === "string" ? parseCard(content) : content };
+      } catch {
+        return { card: null };
+      }
+    });
+  } else if (data?.format === BACKUP_FORMAT && Array.isArray(data.cards)) {
+    entries = data.cards.map(({ id, title, color, image }) => ({
+      id: /^\d+$/.test(String(id)) ? String(id) : undefined,
+      card: { title, color, image },
+    }));
+  } else {
+    throw new Error("This file isn't a Card Manager backup");
+  }
+  return entries;
 }
 
 async function importFilesFromJson(jsonFile) {
-  const jsonData = await jsonFile.text();
-  const fileData = JSON.parse(jsonData);
-
-  for (const file of fileData) {
-    new Worker("worker.js").postMessage([file, Date.now()]);
-    await new Promise((res) => setTimeout(res, 1000));
+  let entries;
+  try {
+    entries = readBackup(await jsonFile.text());
+  } catch (err) {
+    showMessage(err.message);
+    return;
   }
 
-  loadImages();
+  // Skip cards that are already on this device (same id or same content)
+  const normalize = (card) => JSON.stringify({ title: card.title ?? "", color: card.color, image: card.image });
+  const existing = new Map();
+  for (const name of await getFileNames()) {
+    try {
+      existing.set(name, normalize(parseCard(await (await readFile(name)).text())));
+    } catch {
+      existing.set(name, null); // unreadable file: keep its id reserved
+    }
+  }
+  const existingContents = new Set(existing.values());
+
+  let imported = 0;
+  let skipped = 0;
+  let invalid = 0;
+  const base = Date.now();
+  for (const [index, { id, card }] of entries.entries()) {
+    if (!isValidCard(card)) {
+      invalid++;
+      continue;
+    }
+    const content = normalize(card);
+    if (existingContents.has(content) || (id && existing.has(id))) {
+      skipped++;
+      continue;
+    }
+    // Old backups have no ids: number them in order so the order is kept
+    const name = id ?? String(base + index);
+    await writeCardFile(name, content);
+    existing.set(name, content);
+    existingContents.add(content);
+    imported++;
+  }
+
+  await loadImages();
+
+  const parts = [`Imported ${imported} ${imported === 1 ? "card" : "cards"}`];
+  if (skipped) parts.push(`${skipped} already existed`);
+  if (invalid) parts.push(`${invalid} couldn't be read`);
+  showMessage(parts.join(", "));
 }

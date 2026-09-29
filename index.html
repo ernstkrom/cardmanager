@@ -63,7 +63,7 @@
               <div class="small-text secondary-text">Add cards from a backup file</div>
             </div>
           </a>
-          <input id="file-input" type="file" accept="application/json,.json" hidden />
+          <input id="file-input" type="file" hidden />
         </article>
 
         <h6 class="small primary-text">Data</h6>
@@ -163,6 +163,11 @@
       <dialog id="viewer" class="max">
         <img id="viewer-image" alt="" draggable="false" />
       </dialog>
+
+      <!-- Short status messages (import/export results) -->
+      <div class="snackbar" id="snackbar">
+        <div class="max" id="snackbar-text"></div>
+      </div>
 
       <!-- Crop / rotate the card image before saving -->
       <dialog id="editor" class="max no-padding">

@@ -1,30 +1,25 @@
+// Writes one card file to the origin private file system. Runs in a worker
+// because Safari only supports writing OPFS files through the synchronous
+// access handle, which is only available in workers.
+// Message: [content, fileName]; replies { ok: true } or { error }.
 onmessage = async (e) => {
-  // Retrieve message sent to work from main script
-  const message = e.data[0];
-  const timestamp = e.data[1];
+  const [content, fileName] = e.data;
 
-  // Get handle to draft file
-  const root = await navigator.storage.getDirectory();
-  const draftHandle = await root.getFileHandle(timestamp, {
-    create: true,
-  });
-  // Get sync access handle
-  const accessHandle = await draftHandle.createSyncAccessHandle();
-
-  // Get size of the file.
-  const fileSize = accessHandle.getSize();
-  // Read file content to a buffer.
-  const buffer = new DataView(new ArrayBuffer(fileSize));
-  const readBuffer = accessHandle.read(buffer, { at: 0 });
-
-  // Write the message to the end of the file.
-  const encoder = new TextEncoder();
-  const encodedMessage = encoder.encode(message);
-  const writeBuffer = accessHandle.write(encodedMessage, { at: readBuffer });
-
-  // Persist changes to disk.
-  accessHandle.flush();
-
-  // Always close FileSystemSyncAccessHandle if done.
-  accessHandle.close();
+  try {
+    const root = await navigator.storage.getDirectory();
+    const fileHandle = await root.getFileHandle(String(fileName), { create: true });
+    const accessHandle = await fileHandle.createSyncAccessHandle();
+    try {
+      // Replace any previous content rather than appending to it
+      accessHandle.truncate(0);
+      accessHandle.write(new TextEncoder().encode(content), { at: 0 });
+      accessHandle.flush();
+    } finally {
+      // Always close FileSystemSyncAccessHandle if done.
+      accessHandle.close();
+    }
+    postMessage({ ok: true });
+  } catch (err) {
+    postMessage({ error: String(err) });
+  }
 };
