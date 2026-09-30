@@ -84,6 +84,17 @@ main:has(#settings.active) #fab-button {
   vertical-align: -0.2rem;
 }
 
+/* Card search on the home tab */
+#search {
+  max-width: 40rem;
+  margin: 0 auto 1rem;
+}
+
+#search[hidden],
+#list .card[hidden] {
+  display: none;
+}
+
 /* Settings */
 #settings {
   max-width: 40rem;

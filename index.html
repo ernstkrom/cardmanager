@@ -199,7 +199,13 @@
             <i>close</i>
           </button>
         </article>
+        <!-- Fuzzy title filter (app.js), hidden while there are no cards -->
+        <div id="search" class="field prefix round fill" hidden>
+          <i>search</i>
+          <input type="search" id="search-input" placeholder="Search cards" aria-label="Search cards" autocomplete="off" />
+        </div>
         <div id="list"></div>
+        <p id="no-results" class="secondary-text" hidden>No matching cards</p>
       </div>
 
       <!-- Settings -->

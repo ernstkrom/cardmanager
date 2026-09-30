@@ -44,6 +44,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         await root.removeEntry(name);
       }
       document.getElementById("list").replaceChildren();
+      filterCards();
     }
   });
 
@@ -61,6 +62,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       this.value = "";
     }
   });
+
+  document.getElementById("search-input").addEventListener("input", filterCards);
 
   document.getElementById("licenses").addEventListener("click", () => {
     document.getElementById("licenses-dialog").showModal();
@@ -341,6 +344,7 @@ async function loadImages() {
 
     let card = document.createElement("article");
     card.classList.add("card");
+    card.dataset.title = title ?? "";
     if (color) {
       card.style.backgroundColor = color;
       card.style.color = textColorFor(color);
@@ -377,6 +381,43 @@ async function loadImages() {
     });
     list.appendChild(card);
   }
+
+  filterCards();
+}
+
+// Lowercase and without accents, so "cafe" finds "Café"
+function normalizeForSearch(text) {
+  return text.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+}
+
+// Fuzzy match: the query's characters (spaces ignored) appear in the title in
+// order, not necessarily next to each other, so "bkr" finds "Baker Street".
+function fuzzyMatches(title, query) {
+  const text = normalizeForSearch(title);
+  let pos = 0;
+  for (const char of normalizeForSearch(query).replace(/\s+/g, "")) {
+    pos = text.indexOf(char, pos) + 1;
+    if (pos === 0) return false;
+  }
+  return true;
+}
+
+// Shows only the cards whose titles match the search field. The field itself
+// only appears once there are cards to search.
+function filterCards() {
+  const cards = [...document.querySelectorAll("#list .card")];
+  const input = document.getElementById("search-input");
+  if (cards.length === 0) input.value = ""; // don't let a hidden query filter the next new card
+  const query = input.value.trim();
+
+  let visible = 0;
+  for (const card of cards) {
+    card.hidden = query !== "" && !fuzzyMatches(card.dataset.title, query);
+    if (!card.hidden) visible++;
+  }
+
+  document.getElementById("search").hidden = cards.length === 0;
+  document.getElementById("no-results").hidden = cards.length === 0 || visible > 0;
 }
 
 // Saves one card file via the worker; resolves once it's really written.
