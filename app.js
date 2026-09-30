@@ -22,6 +22,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   enforcePortraitOnPhones();
 
+  offerInstall();
+
   hideSplashWhenReady(loadImages());
 
   const inputElement = document.getElementById("upload");
@@ -209,6 +211,80 @@ function enforcePortraitOnPhones() {
   screen.orientation?.addEventListener("change", update);
   window.addEventListener("orientationchange", update);
   update();
+}
+
+// Caught at module load: it can fire before the page setup reaches
+// offerInstall(), which picks it up from here.
+let installPrompt = null;
+window.addEventListener("beforeinstallprompt", (event) => {
+  event.preventDefault(); // show our banner instead of the browser's mini-infobar
+  installPrompt = event;
+  window.dispatchEvent(new Event("install-available"));
+});
+
+// Suggests installing the app while it runs in a browser tab. Chrome/Edge
+// (Android and desktop) fire "beforeinstallprompt", which is kept so the
+// banner's Install button can show the browser's own install dialog. iOS has
+// no such API, so there the banner explains Share > Add to Home Screen instead
+// (not in in-app browsers like Instagram's, which can't add to the home screen:
+// their user agent has no "Safari/" token). Dismissing it is remembered.
+const INSTALL_DISMISSED_KEY = "install-banner-dismissed";
+
+function offerInstall() {
+  const banner = document.getElementById("install-banner");
+  const text = document.getElementById("install-text");
+  const installButton = document.getElementById("install-button");
+
+  const standalone =
+    window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+  let dismissed = false;
+  try {
+    dismissed = localStorage.getItem(INSTALL_DISMISSED_KEY) === "1";
+  } catch {
+    // Storage blocked (e.g. private mode): just show the banner again next time
+  }
+  if (standalone || dismissed) return;
+
+  const hide = () => (banner.hidden = true);
+
+  document.getElementById("install-close").addEventListener("click", () => {
+    hide();
+    try {
+      localStorage.setItem(INSTALL_DISMISSED_KEY, "1");
+    } catch {
+      // See above
+    }
+  });
+
+  const ios =
+    /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1); // iPadOS reports as a Mac
+  if (ios) {
+    if (!/Safari\//.test(navigator.userAgent)) return;
+    text.innerHTML =
+      'Tap <i>ios_share</i> Share (in the <b>•••</b> menu on newer iPhones), then <b>Add to Home Screen</b>.';
+    banner.hidden = false;
+    return;
+  }
+
+  const offerPrompt = () => {
+    text.textContent = "Open your cards straight from the home screen, even offline.";
+    installButton.hidden = false;
+    banner.hidden = false;
+  };
+  if (installPrompt) offerPrompt();
+  window.addEventListener("install-available", offerPrompt);
+
+  installButton.addEventListener("click", async () => {
+    if (!installPrompt) return;
+    const prompt = installPrompt;
+    installPrompt = null; // a prompt can only be shown once
+    prompt.prompt();
+    await prompt.userChoice;
+    hide(); // installed, or declined for now: the browser offers again later
+  });
+
+  window.addEventListener("appinstalled", hide);
 }
 
 // Fades out the loading screen once the styles, icon font and cards are

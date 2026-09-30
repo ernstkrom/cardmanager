@@ -66,6 +66,24 @@ main:has(#settings.active) #fab-button {
   display: none;
 }
 
+/* Install hint on the home tab */
+#install-banner {
+  max-width: 40rem;
+  margin: 0 auto 1rem;
+}
+
+/* BeerCSS gives rows and buttons a display, which would override [hidden] */
+#install-banner[hidden],
+#install-banner [hidden] {
+  display: none;
+}
+
+/* The Share icon inside the iOS instructions, sized to the text */
+#install-text i {
+  ---size: 1.1rem;
+  vertical-align: -0.2rem;
+}
+
 /* Settings */
 #settings {
   max-width: 40rem;

@@ -186,6 +186,19 @@
     <main class="responsive center-align">
       <!-- Home -->
       <div id="home" class="active page padding">
+        <!-- Install hint (app.js): an Install button where the browser offers
+             one, "Add to Home Screen" instructions on iOS -->
+        <article id="install-banner" class="row primary-container left-align" hidden>
+          <i>install_mobile</i>
+          <div class="max">
+            <div class="bold">Install Card Manager</div>
+            <div class="small-text" id="install-text"></div>
+          </div>
+          <button id="install-button" hidden>Install</button>
+          <button class="circle transparent" id="install-close" aria-label="Dismiss">
+            <i>close</i>
+          </button>
+        </article>
         <div id="list"></div>
       </div>
 
