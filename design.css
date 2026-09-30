@@ -22,11 +22,15 @@
   padding: 1.5rem;
 }
 
-/* Keep the image well inside the card, with generous side margins */
+/* Keep the image well inside the card, with generous side margins. Always
+   square: wide barcodes are letterboxed rather than cropped, so the whole code
+   stays visible */
 .card-image {
   display: block;
   width: 70%;
   max-width: 24rem;
+  aspect-ratio: 1;
+  object-fit: contain;
   margin: 0 auto;
 }
 
