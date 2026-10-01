@@ -1,5 +1,5 @@
 // Establish a cache name
-const cacheName = "0.0.27";
+const cacheName = "0.0.28";
 
 // Assets to precache, resolved relative to this script's own location so
 // this works both at a domain root and under a GitHub Pages project path
@@ -11,7 +11,6 @@ const precacheUrls = [
   "./app.js",
   "./card-scan.js",
   "./image-editor.js",
-  "./assets/vendor/long-press-event/long-press-event.js",
   "./worker.js",
   "./assets/vendor/beercss/beer.min.css",
   "./assets/vendor/beercss/beer.min.js",
@@ -29,7 +28,6 @@ const precacheUrls = [
   "./assets/vendor/zxing/LICENSE-zxing-browser",
   "./assets/vendor/zxing/LICENSE-zxing-library",
   "./assets/vendor/zxing/LICENSE-ts-custom-error",
-  "./assets/vendor/long-press-event/LICENSE",
   "./assets/logo/logo.svg?v=2",
   "./assets/logo/favicon.png?v=2",
   "./assets/logo/apple-touch-icon.png?v=2",

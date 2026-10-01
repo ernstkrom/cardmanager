@@ -1,6 +1,5 @@
 import "./assets/vendor/beercss/beer.min.js";
 import "./assets/vendor/material-dynamic-colors/material-dynamic-colors.min.js";
-import "./assets/vendor/long-press-event/long-press-event.js";
 import { processCardImage } from "./card-scan.js";
 import { editImage } from "./image-editor.js";
 
@@ -88,48 +87,59 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 });
 
-// Shows the new card dialog; resolves to { title, color }, or null if cancelled.
-function askCardDetails() {
+// Shows the card details dialog: empty for a new card, or prefilled with an
+// existing card's details (plus a Delete button) when given one. Resolves to
+// { title, color }, "delete", or null if cancelled.
+function askCardDetails(existing) {
   const dialog = document.getElementById("card-dialog");
   const titleInput = document.getElementById("card-title");
   const colorInput = document.getElementById("card-color");
-  titleInput.value = "";
-  colorInput.value = "#ffffff";
+  document.getElementById("card-dialog-title").textContent = existing ? "Edit card" : "New card";
+  document.getElementById("card-delete").hidden = !existing;
+  titleInput.value = existing?.title ?? "";
+  colorInput.value = existing?.color ?? "#ffffff";
 
   return new Promise((resolve) => {
     dialog.addEventListener(
       "close",
       () => {
+        if (dialog.returnValue === "delete") return resolve("delete");
         if (dialog.returnValue !== "save") return resolve(null);
-        resolve({ title: titleInput.value.trim(), color: colorInput.value });
+        // Older cards have no color: keep it that way unless one was picked
+        const keepNoColor = existing && !existing.color && colorInput.value === "#ffffff";
+        resolve({ title: titleInput.value.trim(), color: keepNoColor ? undefined : colorInput.value });
       },
       { once: true }
     );
     dialog.returnValue = "";
     dialog.showModal();
-    titleInput.focus();
+    // Only for new cards: on phones it would pop up the keyboard when editing
+    if (!existing) titleInput.focus();
   });
 }
 
-// Swallows the click (if any) produced by lifting the finger after a long press,
-// so it neither opens the viewer nor hits a button in the dialog that just
-// opened underneath it. Deliberately not done via the long-press event's
-// preventDefault(): that arms a "cancel the next click" listener which iOS
-// never uses up (it fires no click after a long press), so it would eat the
-// first real tap on the dialog instead.
-function suppressReleaseClick() {
-  const swallow = (event) => {
-    event.stopPropagation();
-    event.preventDefault();
-  };
-  const releaseEvents = ["pointerup", "pointercancel", "touchend", "touchcancel", "mouseup"];
-  const onRelease = () => {
-    releaseEvents.forEach((type) => document.removeEventListener(type, onRelease, true));
-    setTimeout(() => document.removeEventListener("click", swallow, true), 350);
-  };
+// Edits or deletes a card from its settings button; resolves to true if the
+// card changed (so the list needs reloading).
+async function editCard(file, card) {
+  const details = await askCardDetails(card);
+  if (!details) return false;
 
-  document.addEventListener("click", swallow, true);
-  releaseEvents.forEach((type) => document.addEventListener(type, onRelease, true));
+  if (details === "delete") {
+    const confirmed = await confirmAction(
+      "Delete card?",
+      card.title
+        ?`"${card.title}" will be permanently removed. This cannot be undone.`
+        : "This card will be permanently removed. This cannot be undone.",
+      "Delete"
+    );
+    if (!confirmed) return false;
+    const root = await navigator.storage.getDirectory();
+    await root.removeEntry(file);
+    return true;
+  }
+
+  await writeCardFile(file, JSON.stringify({ ...details, image: card.image }));
+  return true;
 }
 
 // Asks to confirm a destructive action; resolves to true if confirmed.
@@ -363,22 +373,17 @@ async function loadImages() {
       card.appendChild(heading);
     }
 
-    card.addEventListener("click", () => showViewer(image));
-    card.addEventListener("long-press", async () => {
-      suppressReleaseClick();
-      const confirmed = await confirmAction(
-        "Delete card?",
-        title
-          ? `"${title}" will be permanently removed. This cannot be undone.`
-          : "This card will be permanently removed. This cannot be undone.",
-        "Delete"
-      );
-      if (confirmed) {
-        let root = await navigator.storage.getDirectory();
-        await root.removeEntry(file);
-        loadImages();
-      }
+    let settings = document.createElement("button");
+    settings.classList.add("circle", "transparent", "card-settings");
+    settings.setAttribute("aria-label", title ? `Edit ${title}` : "Edit card");
+    settings.innerHTML = "<i>more_vert</i>";
+    settings.addEventListener("click", async (event) => {
+      event.stopPropagation(); // don't open the viewer as well
+      if (await editCard(file, { title, color, image })) loadImages();
     });
+    card.appendChild(settings);
+
+    card.addEventListener("click", () => showViewer(image));
     list.appendChild(card);
   }
 

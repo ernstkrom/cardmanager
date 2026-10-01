@@ -19,7 +19,21 @@
 }
 
 .card {
+  position: relative;
   padding: 1.5rem;
+}
+
+/* Edit / delete button in the card's corner, in the card's text color so it
+   stays readable on any card color */
+.card-settings {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  color: inherit;
+}
+
+#card-delete[hidden] {
+  display: none;
 }
 
 /* Keep the image well inside the card, with generous side margins. Always
@@ -57,7 +71,7 @@
 }
 
 /* Stop iOS from lifting the image into its own long-press preview / drag
-   interaction; touches go to the card behind it (tap to view, long-press to delete) */
+   interaction; touches go to the card behind it (tap to view) */
 .card-image,
 #viewer-image {
   pointer-events: none;

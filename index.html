@@ -306,10 +306,6 @@
           <a class="link" href="https://github.com/adriengibrat/ts-custom-error" target="_blank" rel="noopener">ts-custom-error</a> 3.3.1
           &middot; <a class="link" href="assets/vendor/zxing/LICENSE-ts-custom-error" target="_blank">MIT</a>
         </li>
-        <li>
-          <a class="link" href="https://github.com/john-doherty/long-press-event" target="_blank" rel="noopener">long-press-event</a>
-          &middot; <a class="link" href="assets/vendor/long-press-event/LICENSE" target="_blank">MIT</a>
-        </li>
       
           </ul>
           <nav class="right-align no-space">
@@ -388,10 +384,11 @@
         </form>
       </dialog>
 
-      <!-- New card details, shown after picking a photo -->
+      <!-- Card details: shown after picking a photo, and from a card's
+           settings button to edit or delete it -->
       <dialog id="card-dialog">
         <form method="dialog" class="left-align">
-          <h5>New card</h5>
+          <h5 id="card-dialog-title">New card</h5>
           <div class="field label border">
             <input type="text" name="title" id="card-title" />
             <label>Title</label>
@@ -400,7 +397,12 @@
             <input type="color" name="color" id="card-color" value="#ffffff" />
             <label>Card color</label>
           </div>
-          <nav class="right-align no-space">
+          <nav class="no-space">
+            <button type="submit" value="delete" class="transparent error-text" id="card-delete" hidden>
+              <i>delete</i>
+              <span>Delete</span>
+            </button>
+            <div class="max"></div>
             <button type="submit" value="cancel" class="transparent link">Cancel</button>
             <button type="submit" value="save">Save</button>
           </nav>
