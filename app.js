@@ -366,22 +366,28 @@ async function loadImages() {
     img.draggable = false;
     card.appendChild(img);
 
+    // Title and edit button share a row, so on phones the button can sit
+    // next to the title instead of over the image
+    let footer = document.createElement("div");
+    footer.classList.add("card-footer");
+    card.appendChild(footer);
+
     if (title) {
       let heading = document.createElement("h6");
       heading.classList.add("card-title");
       heading.textContent = title;
-      card.appendChild(heading);
+      footer.appendChild(heading);
     }
 
     let settings = document.createElement("button");
     settings.classList.add("circle", "transparent", "card-settings");
     settings.setAttribute("aria-label", title ? `Edit ${title}` : "Edit card");
-    settings.innerHTML = "<i>more_vert</i>";
+    settings.innerHTML = "<i>edit</i>";
     settings.addEventListener("click", async (event) => {
       event.stopPropagation(); // don't open the viewer as well
       if (await editCard(file, { title, color, image })) loadImages();
     });
-    card.appendChild(settings);
+    footer.appendChild(settings);
 
     card.addEventListener("click", () => showViewer(image));
     list.appendChild(card);

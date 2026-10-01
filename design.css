@@ -32,6 +32,31 @@
   color: inherit;
 }
 
+/* On phones the corner would cover the image: put the button at the end of
+   the title row instead (on its own, right-aligned, for untitled cards) */
+@media (max-width: 600px) {
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  .card-footer .card-title {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .card-settings {
+    position: static;
+    flex: none;
+    margin: -0.5rem -0.5rem -0.5rem 0;
+  }
+}
+
 #card-delete[hidden] {
   display: none;
 }
